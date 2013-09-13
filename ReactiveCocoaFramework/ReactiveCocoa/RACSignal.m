@@ -33,8 +33,12 @@
 
 // Retains signals while they wait for subscriptions.
 //
-// This set must only be used on the main thread.
+// This collection must only be used on the main thread.
+#if ENABLE_VISUALIZATION
+static NSMutableArray *RACActiveSignals = nil;
+#else
 static CFMutableSetRef RACActiveSignals = nil;
+#endif
 
 // A linked list of RACSignals, used in RACActiveSignalsToCheck.
 typedef struct RACSignalList {
@@ -126,6 +130,9 @@ static RACSignalListDataSource *signalListDataSource;
 + (void)initialize {
 	if (self != RACSignal.class) return;
 
+	#if ENABLE_VISUALIZATION
+	RACActiveSignals = [[NSMutableArray alloc] init];
+	#else
 	CFSetCallBacks callbacks = kCFTypeSetCallBacks;
 
 	// Use pointer equality and hashes for membership testing.
@@ -133,6 +140,7 @@ static RACSignalListDataSource *signalListDataSource;
 	callbacks.hash = NULL;
 
 	RACActiveSignals = CFSetCreateMutable(NULL, 0, &callbacks);
+	#endif
 }
 
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
@@ -212,9 +220,17 @@ static void RACCheckActiveSignals(void) {
 
 		if (signal.subscriberCount > 0) {
 			// We want to keep the signal around until all its subscribers are done
+			#if ENABLE_VISUALIZATION
+			[RACActiveSignals addObject:signal];
+			#else
 			CFSetAddValue(RACActiveSignals, (__bridge void *)signal);
+			#endif
 		} else {
+			#if ENABLE_VISUALIZATION
+			[RACActiveSignals removeObjectIdenticalTo:signal];
+			#else
 			CFSetRemoveValue(RACActiveSignals, (__bridge void *)signal);
+			#endif
 		}
 	}
 
@@ -695,7 +711,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 @implementation RACSignalListDataSource
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(RACSignal *)item {
-	if (item == nil) return CFSetGetCount(RACActiveSignals);
+	if (item == nil) return (NSInteger)RACActiveSignals.count;
 
 	@synchronized (item.dependencies) {
 		return (NSInteger)item.dependencies.count;
@@ -703,10 +719,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(RACSignal *)item {
-	if (item == nil) {
-		// TODO: Get the right thing.
-		return [(__bridge NSSet *)RACActiveSignals anyObject];
-	}
+	if (item == nil) return RACActiveSignals[(NSUInteger)index];
 
 	@synchronized (item.dependencies) {
 		return item.dependencies[(NSUInteger)index];
@@ -720,7 +733,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(RACSignal *)item {
-	return [item.name stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+	return [[item.name stringByReplacingOccurrencesOfString:@"\n" withString:@" "] stringByReplacingOccurrencesOfString:@"\t" withString:@""];
 }
 
 - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
