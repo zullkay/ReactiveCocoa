@@ -25,8 +25,6 @@
 #import "RACTuple.h"
 #import <libkern/OSAtomic.h>
 
-#define ENABLE_VISUALIZATION 1
-
 #if ENABLE_VISUALIZATION
 #import <AppKit/AppKit.h>
 #endif
@@ -113,6 +111,8 @@ static RACSignalListDataSource *signalListDataSource;
 	signalsListView.dataSource = signalListDataSource;
 	signalsListView.delegate = signalListDataSource;
 	signalsListView.columnAutoresizingStyle = NSTableViewFirstColumnOnlyAutoresizingStyle;
+	signalsListView.indentationPerLevel = 16;
+	signalsListView.indentationMarkerFollowsCell = YES;
 	scrollView.documentView = signalsListView;
 
 	NSTableColumn *nameColumn = [[NSTableColumn alloc] initWithIdentifier:@"name"];
@@ -121,7 +121,10 @@ static RACSignalListDataSource *signalListDataSource;
 	nameColumn.minWidth = 200;
 	nameColumn.maxWidth = 100000;
 	nameColumn.editable = NO;
+	[nameColumn.dataCell setFont:[NSFont userFixedPitchFontOfSize:12]];
+
 	[signalsListView addTableColumn:nameColumn];
+	signalsListView.outlineTableColumn = nameColumn;
 	
 	[signalsPanel makeKeyAndOrderFront:nil];
 }
@@ -146,6 +149,17 @@ static RACSignalListDataSource *signalListDataSource;
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe {
 	RACSignal *signal = [[RACSignal alloc] init];
 	signal.didSubscribe = didSubscribe;
+	return [signal setNameWithFormat:@"+createSignal:"];
+}
+
++ (RACSignal *)createSignalWithDependencies:(RACDisposable * (^)(id<RACSubscriber> subscriber, NSMutableArray *dependencies))didSubscribe {
+	RACSignal *signal = [[RACSignal alloc] init];
+	NSMutableArray *deps = signal.dependencies;
+
+	signal.didSubscribe = ^(id<RACSubscriber> subscriber) {
+		return didSubscribe(subscriber, deps);
+	};
+
 	return [signal setNameWithFormat:@"+createSignal:"];
 }
 
@@ -322,15 +336,35 @@ static void RACCheckActiveSignals(void) {
 	 * If any signal sends an error at any point, send that to the subscriber.
 	 */
 
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignalWithDependencies:^(id<RACSubscriber> subscriber, NSMutableArray *deps) {
 		RACStreamBindBlock bindingBlock = block();
 
 		NSMutableArray *signals = [NSMutableArray arrayWithObject:self];
+
+		#if ENABLE_VISUALIZATION
+		@synchronized (deps) {
+			[deps addObject:self];
+		}
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[signalsListView reloadData];
+		});
+		#endif
 
 		RACCompoundDisposable *compoundDisposable = [RACCompoundDisposable compoundDisposable];
 
 		void (^completeSignal)(RACSignal *, RACDisposable *) = ^(RACSignal *signal, RACDisposable *finishedDisposable) {
 			BOOL removeDisposable = NO;
+
+			#if ENABLE_VISUALIZATION
+			@synchronized (deps) {
+				[deps removeObject:signal];
+			}
+
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[signalsListView reloadData];
+			});
+			#endif
 
 			@synchronized (signals) {
 				[signals removeObject:signal];
@@ -350,6 +384,16 @@ static void RACCheckActiveSignals(void) {
 			@synchronized (signals) {
 				[signals addObject:signal];
 			}
+
+			#if ENABLE_VISUALIZATION
+			@synchronized (deps) {
+				[deps addObject:signal];
+			}
+
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[signalsListView reloadData];
+			});
+			#endif
 
 			RACCompoundDisposable *selfDisposable = [RACCompoundDisposable compoundDisposable];
 			[compoundDisposable addDisposable:selfDisposable];
@@ -401,8 +445,19 @@ static void RACCheckActiveSignals(void) {
 }
 
 - (RACSignal *)concat:(RACSignal *)signal {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignalWithDependencies:^(id<RACSubscriber> subscriber, NSMutableArray *deps) {
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
+
+		#if ENABLE_VISUALIZATION
+		@synchronized (deps) {
+			[deps addObject:self];
+			[deps addObject:signal];
+		}
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+			[signalsListView reloadData];
+		});
+		#endif
 
 		RACDisposable *sourceDisposable = [self subscribeNext:^(id x) {
 			[subscriber sendNext:x];
@@ -740,7 +795,7 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 }
 
 - (NSCell *)outlineView:(NSOutlineView *)outlineView dataCellForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
-	return [tableColumn dataCell];
+	return tableColumn.dataCell;
 }
 
 @end

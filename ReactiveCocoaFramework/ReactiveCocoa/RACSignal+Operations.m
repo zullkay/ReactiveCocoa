@@ -685,7 +685,14 @@ static RACDisposable *subscribeForever (RACSignal *signal, void (^next)(id), voi
 }
 
 - (RACSignal *)takeUntil:(RACSignal *)signalTrigger {
-	return [[RACSignal createSignal:^(id<RACSubscriber> subscriber) {
+	return [[RACSignal createSignalWithDependencies:^(id<RACSubscriber> subscriber, NSMutableArray *deps) {
+		#if ENABLE_VISUALIZATION
+		@synchronized (deps) {
+			[deps addObject:self];
+			[deps addObject:signalTrigger];
+		}
+		#endif
+
 		RACCompoundDisposable *disposable = [RACCompoundDisposable compoundDisposable];
 		void (^triggerCompletion)(void) = ^{
 			[disposable dispose];

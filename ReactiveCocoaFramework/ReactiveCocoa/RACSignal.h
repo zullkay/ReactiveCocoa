@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "RACStream.h"
 
+#define ENABLE_VISUALIZATION 1
+
 @class RACDisposable;
 @class RACScheduler;
 @class RACSubject;
@@ -45,6 +47,8 @@
 // subscription, not necessarily on one thread, and possibly even
 // simultaneously!
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe;
+
++ (RACSignal *)createSignalWithDependencies:(RACDisposable * (^)(id<RACSubscriber> subscriber, NSMutableArray *dependencies))didSubscribe;
 
 // Returns a signal that immediately sends the given error.
 + (RACSignal *)error:(NSError *)error;
