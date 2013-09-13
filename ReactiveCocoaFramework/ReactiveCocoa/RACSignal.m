@@ -25,6 +25,12 @@
 #import "RACTuple.h"
 #import <libkern/OSAtomic.h>
 
+#define ENABLE_VISUALIZATION 1
+
+#if ENABLE_VISUALIZATION
+#import <AppKit/AppKit.h>
+#endif
+
 // Retains signals while they wait for subscriptions.
 //
 // This set must only be used on the main thread.
@@ -56,11 +62,66 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 
 @property (nonatomic, copy) RACDisposable * (^didSubscribe)(id<RACSubscriber> subscriber);
 
+#if ENABLE_VISUALIZATION
+// The signals that the receiver is dependent upon.
+//
+// Access to this array should be synchronized upon itself.
+@property (nonatomic, strong, readonly) NSMutableArray *dependencies;
+#endif
+
 @end
+
+#if ENABLE_VISUALIZATION
+@interface RACSignalListDataSource : NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate>
+@end
+#endif
 
 @implementation RACSignal
 
 #pragma mark Lifecycle
+
+#if ENABLE_VISUALIZATION
++ (void)load {
+	[(NSNotificationCenter *)NSNotificationCenter.defaultCenter addObserver:self selector:@selector(applicationDidFinishLaunching:) name:NSApplicationDidFinishLaunchingNotification object:nil];
+}
+
+static NSPanel *signalsPanel;
+static NSOutlineView *signalsListView;
+static RACSignalListDataSource *signalListDataSource;
+
++ (void)applicationDidFinishLaunching:(NSNotification *)notification {
+	signalsPanel = [[NSPanel alloc] initWithContentRect:CGRectMake(0, 0, 500, 1000) styleMask:NSTitledWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask | NSUtilityWindowMask backing:NSBackingStoreBuffered defer:NO];
+	signalsPanel.floatingPanel = YES;
+	signalsPanel.worksWhenModal = YES;
+	signalsPanel.title = @"Active Signals";
+
+	signalListDataSource = [[RACSignalListDataSource alloc] init];
+
+	NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame:CGRectMake(0, 0, 500, 1000)];
+	scrollView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+	scrollView.hasHorizontalScroller = YES;
+	scrollView.hasVerticalScroller = YES;
+	scrollView.backgroundColor = NSColor.whiteColor;
+	scrollView.drawsBackground = YES;
+	[signalsPanel.contentView addSubview:scrollView];
+
+	signalsListView = [[NSOutlineView alloc] initWithFrame:CGRectMake(0, 0, 10000, 10000)];
+	signalsListView.dataSource = signalListDataSource;
+	signalsListView.delegate = signalListDataSource;
+	signalsListView.columnAutoresizingStyle = NSTableViewFirstColumnOnlyAutoresizingStyle;
+	scrollView.documentView = signalsListView;
+
+	NSTableColumn *nameColumn = [[NSTableColumn alloc] initWithIdentifier:@"name"];
+	nameColumn.resizingMask = NSTableColumnAutoresizingMask | NSTableColumnUserResizingMask;
+	nameColumn.width = signalsListView.bounds.size.width;
+	nameColumn.minWidth = 200;
+	nameColumn.maxWidth = 100000;
+	nameColumn.editable = NO;
+	[signalsListView addTableColumn:nameColumn];
+	
+	[signalsPanel makeKeyAndOrderFront:nil];
+}
+#endif
 
 + (void)initialize {
 	if (self != RACSignal.class) return;
@@ -127,6 +188,10 @@ static volatile uint32_t RACWillCheckActiveSignals = 0;
 - (instancetype)init {
 	self = [super init];
 	if (self == nil) return nil;
+
+	#if ENABLE_VISUALIZATION
+	_dependencies = [[NSMutableArray alloc] init];
+	#endif
 	
 	// As soon as we're created we're already trying to be released. Such is life.
 	[self invalidateGlobalRefIfNoNewSubscribersShowUp];
@@ -152,6 +217,10 @@ static void RACCheckActiveSignals(void) {
 			CFSetRemoveValue(RACActiveSignals, (__bridge void *)signal);
 		}
 	}
+
+	#if ENABLE_VISUALIZATION
+	[signalsListView reloadData];
+	#endif
 }
 
 - (void)invalidateGlobalRefIfNoNewSubscribersShowUp {
@@ -621,3 +690,45 @@ static const NSTimeInterval RACSignalAsynchronousWaitTimeout = 10;
 #pragma clang diagnostic pop
 
 @end
+
+#if ENABLE_VISUALIZATION
+@implementation RACSignalListDataSource
+
+- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(RACSignal *)item {
+	if (item == nil) return CFSetGetCount(RACActiveSignals);
+
+	@synchronized (item.dependencies) {
+		return (NSInteger)item.dependencies.count;
+	}
+}
+
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(RACSignal *)item {
+	if (item == nil) {
+		// TODO: Get the right thing.
+		return [(__bridge NSSet *)RACActiveSignals anyObject];
+	}
+
+	@synchronized (item.dependencies) {
+		return item.dependencies[(NSUInteger)index];
+	}
+}
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(RACSignal *)item {
+	@synchronized (item.dependencies) {
+		return item.dependencies.count > 0;
+	}
+}
+
+- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(RACSignal *)item {
+	return [item.name stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+}
+
+- (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
+}
+
+- (NSCell *)outlineView:(NSOutlineView *)outlineView dataCellForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
+	return [tableColumn dataCell];
+}
+
+@end
+#endif
