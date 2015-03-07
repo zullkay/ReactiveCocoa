@@ -10,7 +10,6 @@
 #import "NSArray+RACSupport.h"
 #import "NSData+RACSupport.h"
 #import "NSDictionary+RACSupport.h"
-#import "NSEnumerator+RACSupport.h"
 #import "NSFileHandle+RACSupport.h"
 #import "NSHashTable+RACSupport.h"
 #import "NSIndexSet+RACSupport.h"
@@ -58,10 +57,8 @@
 
 #ifdef WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
 	#import "RACBehaviorSubject.h"
-	#import "RACCommand.h"
 	#import "RACMulticastConnection.h"
 	#import "RACReplaySubject.h"
-	#import "RACSequence.h"
 	#import "RACStream.h"
 	#import "RACUnit.h"
 #endif

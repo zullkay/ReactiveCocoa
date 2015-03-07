@@ -10,7 +10,6 @@
 #import "RACDeprecated.h"
 #import "metamacros.h"
 
-@class RACSequence;
 @class RACSignal;
 
 /// Creates a new tuple with the given values. At least one value must be given.
@@ -108,7 +107,6 @@
 
 @interface RACTuple (Deprecated)
 
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
 @property (nonatomic, copy, readonly) NSArray *allObjects RACDeprecated("Renamed to -array");
 
 @property (nonatomic, strong, readonly) id first RACDeprecated("Use subscripting or -objectAtIndex: instead");

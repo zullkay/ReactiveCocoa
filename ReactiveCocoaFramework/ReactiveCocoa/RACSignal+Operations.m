@@ -23,7 +23,6 @@
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Private.h"
-#import "RACSignalSequence.h"
 #import "RACStream+Private.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
@@ -1344,10 +1343,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 @implementation RACSignal (DeprecatedOperations)
-
-- (RACSequence *)sequence {
-	return [[RACSignalSequence sequenceWithSignal:self] setNameWithFormat:@"[%@] -sequence", self.name];
-}
 
 - (RACSignal *)throttle:(NSTimeInterval)interval {
 	return [self throttleDiscardingEarliest:interval];

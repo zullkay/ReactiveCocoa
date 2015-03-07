@@ -10,7 +10,6 @@
 #import "RACDeprecated.h"
 
 @class RACAction;
-@class RACCommand;
 
 @interface UIRefreshControl (RACSupport)
 
@@ -22,11 +21,5 @@
 /// When the action finishes executing (and if it was started by the receiver),
 /// -endRefreshing will be invoked automatically.
 @property (nonatomic, strong) RACAction *rac_action;
-
-@end
-
-@interface UIRefreshControl (RACSupportDeprecated)
-
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

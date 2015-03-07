@@ -10,7 +10,6 @@
 
 #import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
-#import "RACIndexSetSequence.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
 
@@ -32,16 +31,3 @@
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-
-@implementation NSIndexSet (RACSupportDeprecated)
-
-- (RACSequence *)rac_sequence {
-	return [RACIndexSetSequence sequenceWithIndexSet:self];
-}
-
-@end
-
-#pragma clang diagnostic pop

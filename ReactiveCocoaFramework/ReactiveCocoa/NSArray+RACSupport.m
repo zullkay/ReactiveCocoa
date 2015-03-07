@@ -8,7 +8,6 @@
 
 #import "NSArray+RACSupport.h"
 #import "NSObject+RACDescription.h"
-#import "RACArraySequence.h"
 #import "RACCompoundDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
@@ -64,17 +63,3 @@
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-@implementation NSArray (RACSupportDeprecated)
-
-- (RACSequence *)rac_sequence {
-	return [RACArraySequence sequenceWithArray:self offset:0];
-}
-
-@end
-
-#pragma clang diagnostic pop

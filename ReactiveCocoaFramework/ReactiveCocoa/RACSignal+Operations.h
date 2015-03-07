@@ -45,11 +45,9 @@ typedef enum : NSUInteger {
 	RACSignalFlattenPolicyDisposeLatest
 } RACSignalFlattenPolicy;
 
-@class RACCommand;
 @class RACDisposable;
 @class RACMulticastConnection;
 @class RACScheduler;
-@class RACSequence;
 @class RACSubject;
 @class RACTuple;
 @protocol RACSubscriber;
@@ -221,15 +219,6 @@ typedef enum : NSUInteger {
 ///                 receiver. If the receiver is empty, this block will never be
 ///                 invoked.
 ///
-/// Examples
-///
-///      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
-///
-///      // Contains 1, 3, 6, 10
-///      RACSequence *sums = [numbers scanWithStart:@0 reduce:^(NSNumber *sum, NSNumber *next) {
-///          return @(sum.integerValue + next.integerValue);
-///      }];
-///
 /// Returns a signal that will send the return values from `block`. If the
 /// receiver is empty, the resulting signal will complete immediately.
 - (RACSignal *)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block;
@@ -244,15 +233,6 @@ typedef enum : NSUInteger {
 ///               first value.
 /// reduceBlock - The block that combines the previous value and the current
 ///               value to create the reduced value. Cannot be nil.
-///
-/// Examples
-///
-///      RACSequence *numbers = @[ @1, @2, @3, @4 ].rac_sequence;
-///
-///      // Contains 1, 3, 5, 7
-///      RACSequence *sums = [numbers combinePreviousWithStart:@0 reduce:^(NSNumber *previous, NSNumber *next) {
-///          return @(previous.integerValue + next.integerValue);
-///      }];
 ///
 /// Returns a signal that will send the return values from `reduceBlock`. If the
 /// receiver is empty, the resulting signal will complete immediately.
@@ -851,8 +831,6 @@ typedef enum : NSUInteger {
 
 @interface RACSignal (DeprecatedOperations)
 
-@property (nonatomic, strong, readonly) RACSequence *sequence RACDeprecated("Transform the signal instead");
-
 - (RACSignal *)throttle:(NSTimeInterval)interval RACDeprecated("Renamed to -throttleDiscardingEarliest:");
 - (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate RACDeprecated("Use a signal of signals and -flatten:withPolicy: with RACSignalFlattenPolicyDisposeEarliest instead");
 - (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
@@ -893,6 +871,5 @@ typedef enum : NSUInteger {
 - (RACSignal *)sequenceNext:(RACSignal * (^)(void))block __attribute__((unavailable("Renamed to -then:")));
 - (RACSignal *)aggregateWithStart:(id)start combine:(id (^)(id running, id next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStart:reduce:")));
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory combine:(id (^)(id running, id next))combineBlock __attribute__((unavailable("Renamed to -aggregateWithStartFactory:reduce:")));
-- (RACDisposable *)executeCommand:(RACCommand *)command __attribute__((unavailable("Use -flattenMap: or -subscribeNext: instead")));
 
 @end

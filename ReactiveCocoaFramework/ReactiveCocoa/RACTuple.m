@@ -12,7 +12,6 @@
 #import "RACCompoundDisposable.h"
 #import "RACSignal.h"
 #import "RACSubscriber.h"
-#import "RACTupleSequence.h"
 
 @implementation RACTupleNil
 
@@ -213,10 +212,6 @@
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 @implementation RACTuple (Deprecated)
-
-- (RACSequence *)rac_sequence {
-	return [RACTupleSequence sequenceWithTupleBackingArray:self.backingArray offset:0];
-}
 
 - (NSArray *)allObjects {
 	return self.array;

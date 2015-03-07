@@ -10,7 +10,6 @@
 #import "RACCollection.h"
 #import "RACDeprecated.h"
 
-@class RACSequence;
 @class RACSignal;
 
 @interface NSSet (RACSupport)
@@ -23,10 +22,4 @@
 @end
 
 @interface NSMutableSet (RACCollectionSupport) <RACCollection>
-@end
-
-@interface NSSet (RACSupportDeprecated)
-
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
-
 @end

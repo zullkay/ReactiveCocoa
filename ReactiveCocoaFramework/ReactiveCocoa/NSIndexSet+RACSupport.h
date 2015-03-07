@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "RACDeprecated.h"
 
-@class RACSequence;
 @class RACSignal;
 
 @interface NSIndexSet (RACSupport)
@@ -18,11 +17,5 @@
 ///
 /// Mutating the receiver will not affect the signal after it's been created.
 @property (nonatomic, strong, readonly) RACSignal *rac_signal;
-
-@end
-
-@interface NSIndexSet (RACSupportDeprecated)
-
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence;
 
 @end

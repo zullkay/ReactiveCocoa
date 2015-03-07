@@ -10,7 +10,6 @@
 #import "RACDeprecated.h"
 
 @class RACAction;
-@class RACCommand;
 
 @interface UIButton (RACSupport)
 
@@ -19,11 +18,5 @@
 /// The receiver will be automatically enabled and disabled based on
 /// `RACAction.enabled`.
 @property (nonatomic, strong) RACAction *rac_action;
-
-@end
-
-@interface UIButton (RACSupportDeprecated)
-
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

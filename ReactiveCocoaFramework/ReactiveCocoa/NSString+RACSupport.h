@@ -10,7 +10,6 @@
 #import "RACDeprecated.h"
 
 @class RACScheduler;
-@class RACSequence;
 @class RACSignal;
 
 @interface NSString (RACSupport)
@@ -38,8 +37,6 @@
 @end
 
 @interface NSString (RACSupportDeprecated)
-
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_substringsInRange:options: instead");
 
 + (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler RACDeprecated("Use +rac_contentsAndEncodingOfURL: instead");
 

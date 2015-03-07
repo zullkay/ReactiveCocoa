@@ -11,7 +11,6 @@
 
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
-#import "RACSequence.h"
 #import "RACSignal+Operations.h"
 
 #ifdef DEBUG

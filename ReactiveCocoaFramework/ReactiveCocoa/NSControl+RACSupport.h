@@ -10,7 +10,6 @@
 #import "RACDeprecated.h"
 
 @class RACAction;
-@class RACCommand;
 @class RACSignal;
 
 @interface NSControl (RACSupport)
@@ -43,11 +42,5 @@
 /// does not work in a key path), and may have `RAC()` applied to it, but it is
 /// not KVO-compliant.
 @property (nonatomic, assign, getter = rac_isEnabled) BOOL rac_enabled;
-
-@end
-
-@interface NSControl (RACSupportDeprecated)
-
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

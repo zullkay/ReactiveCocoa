@@ -10,7 +10,6 @@
 #import "RACDeprecated.h"
 #import "RACCollection.h"
 
-@class RACSequence;
 @class RACSignal;
 
 @interface NSDictionary (RACSupport)
@@ -29,13 +28,5 @@
 ///
 /// Mutating the dictionary will not affect the signal after it's been created.
 @property (nonatomic, strong, readonly) RACSignal *rac_valueSignal;
-
-@end
-
-@interface NSDictionary (RACSupportDeprecated)
-
-@property (nonatomic, copy, readonly) RACSequence *rac_sequence RACDeprecated("Use -rac_signal instead");
-@property (nonatomic, copy, readonly) RACSequence *rac_keySequence RACDeprecated("Use -rac_keySignal instead");
-@property (nonatomic, copy, readonly) RACSequence *rac_valueSequence RACDeprecated("Use -rac_valueSignal instead");
 
 @end

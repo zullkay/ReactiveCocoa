@@ -10,7 +10,6 @@
 #import "RACDeprecated.h"
 
 @class RACAction;
-@class RACCommand;
 @class RACSignal;
 
 @interface UIBarButtonItem (RACSupport)
@@ -29,11 +28,5 @@
 /// **Note:** Setting this property will reset the item's target and action.
 /// However, this property can be used simultaneously with `rac_actionSignal`.
 @property (nonatomic, strong) RACAction *rac_action;
-
-@end
-
-@interface UIBarButtonItem (RACSupportDeprecated)
-
-@property (nonatomic, strong) RACCommand *rac_command RACDeprecated("Use `rac_action` instead");
 
 @end

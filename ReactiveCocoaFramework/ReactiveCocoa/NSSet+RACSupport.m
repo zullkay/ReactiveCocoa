@@ -46,18 +46,3 @@
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-@implementation NSSet (RACSupportDeprecated)
-
-- (RACSequence *)rac_sequence {
-	// TODO: First class support for set sequences.
-	return self.allObjects.rac_sequence;
-}
-
-@end
-
-#pragma clang diagnostic pop

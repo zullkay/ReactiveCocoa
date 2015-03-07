@@ -10,7 +10,6 @@
 #import "RACTestUIButton.h"
 
 #import "UIButton+RACSupport.h"
-#import "RACCommand.h"
 #import "RACDisposable.h"
 
 SpecBegin(UIButtonRACSupport)
