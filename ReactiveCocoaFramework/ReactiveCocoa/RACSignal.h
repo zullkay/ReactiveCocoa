@@ -216,11 +216,3 @@
 + (RACSignal *)createSignal:(RACDisposable * (^)(id<RACSubscriber> subscriber))didSubscribe RACDeprecated("Use +create: instead");
 
 @end
-
-@interface RACSignal (Unavailable)
-
-+ (RACSignal *)start:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +create: instead")));
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler subjectBlock:(void (^)(RACSubject *subject))block __attribute__((unavailable("Use +create: instead")));
-+ (RACSignal *)startWithScheduler:(RACScheduler *)scheduler block:(id (^)(BOOL *success, NSError **error))block __attribute__((unavailable("Use +create: instead")));
-
-@end

@@ -21,9 +21,3 @@
 - (RACSignal *)rac_textSignal;
 
 @end
-
-@interface UITextView (RACSupportUnavailable)
-
-- (RACSignal *)rac_signalForDelegateMethod:(SEL)method __attribute__((unavailable("Use -rac_signalForSelector:fromProtocol: instead")));
-
-@end

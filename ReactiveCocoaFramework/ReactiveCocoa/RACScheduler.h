@@ -117,9 +117,3 @@ typedef enum : long {
 - (RACDisposable *)after:(NSDate *)date repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
 
 @end
-
-@interface RACScheduler (Unavailable)
-
-+ (RACScheduler *)schedulerWithQueue:(dispatch_queue_t)queue name:(NSString *)name __attribute__((unavailable("Use -[RACScheduler initWithName:targetQueue:] instead.")));
-
-@end

@@ -34,9 +34,3 @@
 - (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(void (^)(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent))block;
 
 @end
-
-@interface NSObject (RACUnavailableKVOWrapper)
-
-- (RACKVOTrampoline *)rac_addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(void (^)(id, id, NSDictionary *))block __attribute((unavailable("Use -rac_observeKeyPath:options:block: instead.")));
-
-@end

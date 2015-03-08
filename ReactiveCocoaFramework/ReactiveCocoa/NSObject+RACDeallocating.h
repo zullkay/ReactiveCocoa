@@ -24,10 +24,3 @@
 - (RACSignal *)rac_willDeallocSignal;
 
 @end
-
-@interface NSObject (RACUnavailableDeallocating)
-
-- (RACSignal *)rac_didDeallocSignal __attribute__((unavailable("Use -rac_willDeallocSignal")));
-- (void)rac_addDeallocDisposable:(RACDisposable *)disposable __attribute__((unavailable("Add disposables to -rac_deallocDisposable instead")));
-
-@end

@@ -113,14 +113,3 @@
 
 #define RACObserve_warn_self \
 	2,
-
-@interface NSObject (RACUnavailablePropertySubscribing)
-
-+ (RACSignal *)rac_signalFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((unavailable("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
-+ (RACSignal *)rac_signalWithStartingValueFor:(NSObject *)object keyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((unavailable("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
-+ (RACSignal *)rac_signalWithChangesFor:(NSObject *)object keyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer __attribute__((unavailable("Use -rac_valuesAndChangesForKeyPath:options:observer: instead.")));
-- (RACSignal *)rac_signalForKeyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((unavailable("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
-- (RACSignal *)rac_signalWithStartingValueForKeyPath:(NSString *)keyPath observer:(NSObject *)observer __attribute__((unavailable("Use -rac_valuesForKeyPath:observer: or RACObserve() instead.")));
-- (RACDisposable *)rac_deriveProperty:(NSString *)keyPath from:(RACSignal *)signal __attribute__((unavailable("Use -[RACSignal setKeyPath:onObject:] instead")));
-
-@end
