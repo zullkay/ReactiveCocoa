@@ -57,7 +57,6 @@
 
 #ifdef WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
 	#import "RACBehaviorSubject.h"
-	#import "RACMulticastConnection.h"
 	#import "RACReplaySubject.h"
 	#import "RACStream.h"
 	#import "RACUnit.h"

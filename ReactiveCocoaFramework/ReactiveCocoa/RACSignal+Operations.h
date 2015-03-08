@@ -46,7 +46,6 @@ typedef enum : NSUInteger {
 } RACSignalFlattenPolicy;
 
 @class RACDisposable;
-@class RACMulticastConnection;
 @class RACScheduler;
 @class RACSubject;
 @class RACTuple;
@@ -847,11 +846,6 @@ typedef enum : NSUInteger {
 - (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock RACDeprecated("Use -map: instead");
 - (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock RACDeprecated("Use +defer: and -aggregateWithStart:reduce: instead");
 - (RACSignal *)then:(RACSignal * (^)(void))block RACDeprecated("Use -ignoreValues followed by -concat: with +defer: instead");
-- (RACMulticastConnection *)publish RACDeprecated("Send events to a shared RACSubject instead");
-- (RACMulticastConnection *)multicast:(RACSubject *)subject RACDeprecated("Send events to a shared RACSubject instead");
-- (RACSignal *)replay RACDeprecated("Bind to a property with RAC() instead");
-- (RACSignal *)replayLast RACDeprecated("Bind to a property with RAC() instead");
-- (RACSignal *)replayLazily RACDeprecated("Bind to a property with RAC() or use -shareWhileActive instead");
 - (NSArray *)toArray RACDeprecated("Renamed to -array");
 - (RACSignal *)bind:(RACSignalBindBlock (^)(void))block RACDeprecated("Use +create: or -flattenMap: instead");
 

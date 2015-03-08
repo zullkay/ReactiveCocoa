@@ -18,7 +18,6 @@
 #import "RACEvent.h"
 #import "RACGroupedSignal.h"
 #import "RACLiveSubscriber.h"
-#import "RACMulticastConnection+Private.h"
 #import "RACReplaySubject.h"
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
@@ -1496,46 +1495,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		ignoreValues]
 		concat:[RACSignal defer:block]]
 		setNameWithFormat:@"[%@] -then:", self.name];
-}
-
-- (RACMulticastConnection *)publish {
-	RACSubject *subject = [[RACSubject subject] setNameWithFormat:@"[%@] -publish", self.name];
-	RACMulticastConnection *connection = [self multicast:subject];
-	return connection;
-}
-
-- (RACMulticastConnection *)multicast:(RACSubject *)subject {
-	[subject setNameWithFormat:@"[%@] -multicast: %@", self.name, subject.name];
-	RACMulticastConnection *connection = [[RACMulticastConnection alloc] initWithSourceSignal:self subject:subject];
-	return connection;
-}
-
-- (RACSignal *)replay {
-	RACReplaySubject *subject = [[RACReplaySubject subject] setNameWithFormat:@"[%@] -replay", self.name];
-
-	RACMulticastConnection *connection = [self multicast:subject];
-	[connection connect];
-
-	return connection.signal;
-}
-
-- (RACSignal *)replayLast {
-	RACReplaySubject *subject = [[RACReplaySubject replaySubjectWithCapacity:1] setNameWithFormat:@"[%@] -replayLast", self.name];
-
-	RACMulticastConnection *connection = [self multicast:subject];
-	[connection connect];
-
-	return connection.signal;
-}
-
-- (RACSignal *)replayLazily {
-	RACMulticastConnection *connection = [self multicast:[RACReplaySubject subject]];
-	return [[RACSignal
-		defer:^{
-			[connection connect];
-			return connection.signal;
-		}]
-		setNameWithFormat:@"[%@] -replayLazily", self.name];
 }
 
 - (NSArray *)toArray {

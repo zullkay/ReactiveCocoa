@@ -14,7 +14,6 @@
 #import "NSObject+RACSelectorSignal.h"
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
-#import "RACMulticastConnection.h"
 #import "RACSignal+Operations.h"
 #import "RACSignal.h"
 #import "RACTuple.h"
