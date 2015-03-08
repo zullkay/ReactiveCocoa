@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 #import "RACCollection.h"
 
 @class RACSignal;

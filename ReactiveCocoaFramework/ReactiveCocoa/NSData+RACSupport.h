@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 
 @class RACScheduler;
 @class RACSignal;
@@ -19,11 +18,5 @@
 //
 // Returns a signal which will send the read `NSData` then complete, or error.
 + (RACSignal *)rac_contentsOfURL:(NSURL *)URL options:(NSDataReadingOptions)options;
-
-@end
-
-@interface NSData (RACSupportDeprecated)
-
-+ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL options:(NSDataReadingOptions)options scheduler:(RACScheduler *)scheduler RACDeprecated("Use +rac_contentsOfURL:options: instead");
 
 @end

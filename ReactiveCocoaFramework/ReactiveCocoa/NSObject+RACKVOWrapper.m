@@ -187,24 +187,3 @@
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-
-@implementation NSObject (RACDeprecatedKVOWrapper)
-
-- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent))block {
-	RACDisposable *disposable = [self rac_observeKeyPath:keyPath options:options block:block];
-
-	RACCompoundDisposable *observerDisposable = observer.rac_deallocDisposable;
-	[observerDisposable addDisposable:disposable];
-
-	return [RACDisposable disposableWithBlock:^{
-		[disposable dispose];
-		[observerDisposable removeDisposable:disposable];
-	}];
-}
-
-@end
-
-#pragma clang diagnostic pop

@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 
 @class RACScheduler;
 @class RACSignal;
@@ -33,11 +32,5 @@
 // URL's content, and an `NSNumber`-boxed `NSStringEncoding` indicating the
 // encoding used to read it, then complete.
 + (RACSignal *)rac_contentsAndEncodingOfURL:(NSURL *)URL;
-
-@end
-
-@interface NSString (RACSupportDeprecated)
-
-+ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler RACDeprecated("Use +rac_contentsAndEncodingOfURL: instead");
 
 @end

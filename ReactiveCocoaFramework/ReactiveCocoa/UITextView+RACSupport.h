@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RACDeprecated.h"
 
 @class RACDelegateProxy;
 @class RACSignal;
@@ -20,12 +19,6 @@
 /// again whenever the receiver's text is changed. The signal will complete when
 /// the receiver is deallocated.
 - (RACSignal *)rac_textSignal;
-
-@end
-
-@interface UITextView (RACSupportDeprecated)
-
-@property (nonatomic, strong, readonly) RACDelegateProxy *rac_delegateProxy RACDeprecated("Use the `delegate` property of UITextView normally.");
 
 @end
 

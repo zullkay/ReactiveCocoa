@@ -168,24 +168,3 @@ static NSArray *RACConvertToArray(id collection) {
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-
-@implementation NSObject (RACDeprecatedPropertySubscribing)
-
-- (RACSignal *)rac_valuesForKeyPath:(NSString *)keyPath observer:(NSObject *)observer {
-	return [[self
-		rac_valuesForKeyPath:keyPath]
-		takeUntil:observer.rac_willDeallocSignal];
-}
-
-- (RACSignal *)rac_valuesAndChangesForKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer {
-	return [[self
-		rac_valuesAndChangesForKeyPath:keyPath options:options]
-		takeUntil:observer.rac_willDeallocSignal];
-}
-
-@end
-
-#pragma clang diagnostic pop

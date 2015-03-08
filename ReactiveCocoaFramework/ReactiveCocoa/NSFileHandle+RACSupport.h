@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 
 @class RACSignal;
 
@@ -18,13 +17,5 @@
 /// Returns a signal that will send zero or more `NSData` objects, then complete
 /// when no more data can be read.
 - (RACSignal *)rac_readDataToEndOfFile;
-
-@end
-
-@interface NSFileHandle (RACSupportDeprecated)
-
-// Read any available data in the background and send it. Completes when data
-// length is <= 0.
-- (RACSignal *)rac_readInBackground RACDeprecated("Use -rac_readDataToEndOfFile instead");
 
 @end

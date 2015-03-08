@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 #import "RACSignal.h"
 
 /// The domain for errors originating in RACSignal operations.
@@ -825,25 +824,6 @@ typedef enum : NSUInteger {
 /// Returns a signal of the result of applying the first element of each tuple
 /// to the remaining elements.
 - (RACSignal *)reduceApply;
-
-@end
-
-@interface RACSignal (DeprecatedOperations)
-
-- (RACSignal *)throttle:(NSTimeInterval)interval RACDeprecated("Renamed to -throttleDiscardingEarliest:");
-- (RACSignal *)throttle:(NSTimeInterval)interval valuesPassingTest:(BOOL (^)(id next))predicate RACDeprecated("Use a signal of signals and -flatten:withPolicy: with RACSignalFlattenPolicyDisposeEarliest instead");
-- (RACSignal *)initially:(void (^)(void))block RACDeprecated("Put side effects into +defer: instead");
-- (RACSignal *)finally:(void (^)(void))block RACDeprecated("Renamed to -doFinished:");
-- (RACSignal *)flatten:(NSUInteger)maxConcurrent RACDeprecated("Use -flatten:withPolicy: with RACSignalFlattenPolicyQueue instead");
-- (RACSignal *)any RACDeprecated("Use -take: with -mapReplace: and -concat: instead");
-- (RACSignal *)any:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -filter: and -take: instead");
-- (RACSignal *)all:(BOOL (^)(id object))predicateBlock RACDeprecated("Use -flattenMap: and -take: instead");
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock transform:(id (^)(id object))transformBlock RACDeprecated("Use -map: instead");
-- (RACSignal *)groupBy:(id<NSCopying> (^)(id object))keyBlock RACDeprecated("Use -map: instead");
-- (RACSignal *)aggregateWithStartFactory:(id (^)(void))startFactory reduce:(id (^)(id running, id next))reduceBlock RACDeprecated("Use +defer: and -aggregateWithStart:reduce: instead");
-- (RACSignal *)then:(RACSignal * (^)(void))block RACDeprecated("Use -ignoreValues followed by -concat: with +defer: instead");
-- (NSArray *)toArray RACDeprecated("Renamed to -array");
-- (RACSignal *)bind:(RACSignalBindBlock (^)(void))block RACDeprecated("Use +create: or -flattenMap: instead");
 
 @end
 

@@ -41,17 +41,5 @@
 
 	return signal;
 }
-@end
 
-@implementation UITextView (RACSupportDeprecated)
-
-- (RACDelegateProxy *)rac_delegateProxy {
-	RACDelegateProxy *proxy = objc_getAssociatedObject(self, _cmd);
-	if (proxy == nil) {
-		proxy = [[RACDelegateProxy alloc] initWithProtocol:@protocol(UITextViewDelegate)];
-		objc_setAssociatedObject(self, _cmd, proxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	}
-
-	return proxy;
-}
 @end

@@ -31,26 +31,3 @@
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-@implementation NSData (RACSupportDeprecated)
-
-+ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL options:(NSDataReadingOptions)options scheduler:(RACScheduler *)scheduler {
-	NSCParameterAssert(scheduler != nil);
-
-	RACReplaySubject *subject = [RACReplaySubject subject];
-
-	[[[self
-		rac_contentsOfURL:URL options:options]
-		subscribeOn:scheduler]
-		subscribe:subject];
-
-	return [subject setNameWithFormat:@"+rac_readContentsOfURL: %@ options: %lu scheduler: %@", URL, (unsigned long)options, scheduler];
-}
-
-@end
-
-#pragma clang diagnostic pop

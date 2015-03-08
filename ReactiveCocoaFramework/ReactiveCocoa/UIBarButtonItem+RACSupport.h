@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RACDeprecated.h"
 
 @class RACAction;
 @class RACSignal;

@@ -207,49 +207,6 @@
 
 @end
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-@implementation RACTuple (Deprecated)
-
-- (NSArray *)allObjects {
-	return self.array;
-}
-
-- (id)first {
-	return self[0];
-}
-
-- (id)second {
-	return self[1];
-}
-
-- (id)third {
-	return self[2];
-}
-
-- (id)fourth {
-	return self[3];
-}
-
-- (id)fifth {
-	return self[4];
-}
-
-- (id)last {
-	return self[self.count - 1];
-}
-
-- (instancetype)tupleByAddingObject:(id)obj {
-	NSArray *newArray = [self.backingArray arrayByAddingObject:obj ?: RACTupleNil.tupleNil];
-	return [self.class tupleWithArray:newArray convertNullsToNils:NO];
-}
-
-@end
-
-#pragma clang diagnostic pop
-
 @implementation RACTupleUnpackingTrampoline
 
 #pragma mark Lifecycle

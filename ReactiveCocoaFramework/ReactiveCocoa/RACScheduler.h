@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 
 /// The priority for the scheduler.
 ///
@@ -116,14 +115,6 @@ typedef enum : long {
 /// Returns a disposable which can be used to cancel the automatic scheduling and
 /// rescheduling, or nil if cancellation is not supported.
 - (RACDisposable *)after:(NSDate *)date repeatingEvery:(NSTimeInterval)interval withLeeway:(NSTimeInterval)leeway schedule:(void (^)(void))block;
-
-@end
-
-typedef void (^RACSchedulerRecursiveBlock)(void (^reschedule)(void));
-
-@interface RACScheduler (Deprecated)
-
-- (RACDisposable *)scheduleRecursiveBlock:(RACSchedulerRecursiveBlock)recursiveBlock RACDeprecated("Use -scheduleOn: and a reflexive RACDynamicSignalGenerator instead");
 
 @end
 

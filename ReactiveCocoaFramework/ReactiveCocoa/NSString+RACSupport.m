@@ -53,33 +53,3 @@
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-@implementation NSString (RACSupportDeprecated)
-
-+ (RACSignal *)rac_readContentsOfURL:(NSURL *)URL usedEncoding:(NSStringEncoding *)encoding scheduler:(RACScheduler *)scheduler {
-	NSCParameterAssert(scheduler != nil);
-
-	RACReplaySubject *subject = [RACReplaySubject subject];
-	[[[[[self
-		rac_contentsAndEncodingOfURL:URL]
-		subscribeOn:scheduler]
-		doNext:^(RACTuple *contentsAndEncoding) {
-			RACTupleUnpack(NSString *contents, NSNumber *boxedEncoding) = contentsAndEncoding;
-			[subject sendNext:contents];
-
-			// lol this is so ridiculously unsafe
-			*encoding = boxedEncoding.unsignedIntegerValue;
-		}]
-		ignoreValues]
-		subscribe:subject];
-
-	return [subject setNameWithFormat:@"+rac_readContentsOfURL: %@ usedEncoding:scheduler: %@", URL, scheduler];
-}
-
-@end
-
-#pragma clang diagnostic pop

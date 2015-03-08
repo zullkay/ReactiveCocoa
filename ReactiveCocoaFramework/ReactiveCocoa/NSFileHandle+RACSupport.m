@@ -45,20 +45,3 @@
 }
 
 @end
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-
-@implementation NSFileHandle (RACSupportDeprecated)
-
-- (RACSignal *)rac_readInBackground {
-	RACReplaySubject *subject = [RACReplaySubject subject];
-	[[self rac_readDataToEndOfFile] subscribe:subject];
-
-	return [subject setNameWithFormat:@"%@ -rac_readInBackground", self];
-}
-
-@end
-
-#pragma clang diagnostic pop

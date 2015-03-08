@@ -31,7 +31,6 @@
 #import "RACDisposable.h"
 #import "RACDynamicSignalGenerator.h"
 #import "RACEvent.h"
-#import "RACGroupedSignal.h"
 #import "RACInsertionMutation.h"
 #import "RACKVOChannel.h"
 #import "RACMinusMutation.h"

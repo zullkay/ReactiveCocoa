@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 #import "metamacros.h"
 
 @class RACSignal;
@@ -102,21 +101,6 @@
 
 /// Invokes -objectAtIndex: with the given index.
 - (id)objectAtIndexedSubscript:(NSUInteger)idx; 
-
-@end
-
-@interface RACTuple (Deprecated)
-
-@property (nonatomic, copy, readonly) NSArray *allObjects RACDeprecated("Renamed to -array");
-
-@property (nonatomic, strong, readonly) id first RACDeprecated("Use subscripting or -objectAtIndex: instead");
-@property (nonatomic, strong, readonly) id second RACDeprecated("Use subscripting or -objectAtIndex: instead");
-@property (nonatomic, strong, readonly) id third RACDeprecated("Use subscripting or -objectAtIndex: instead");
-@property (nonatomic, strong, readonly) id fourth RACDeprecated("Use subscripting or -objectAtIndex: instead");
-@property (nonatomic, strong, readonly) id fifth RACDeprecated("Use subscripting or -objectAtIndex: instead");
-@property (nonatomic, strong, readonly) id last RACDeprecated("Use subscripting or -objectAtIndex: instead");
-
-- (instancetype)tupleByAddingObject:(id)obj RACDeprecated("Use -array and -arrayByAddingObject: instead");
 
 @end
 

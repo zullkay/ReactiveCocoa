@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RACDeprecated.h"
 
 @class RACDisposable;
 @class RACKVOTrampoline;
@@ -33,12 +32,6 @@
 //
 // Returns a disposable that can be used to stop the observation.
 - (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options block:(void (^)(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent))block;
-
-@end
-
-@interface NSObject (RACDeprecatedKVOWrapper)
-
-- (RACDisposable *)rac_observeKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options observer:(NSObject *)observer block:(void (^)(id value, NSDictionary *change, BOOL causedByDealloc, BOOL affectedOnlyLastComponent))block RACDeprecated("Use -rac_observeKeyPath:options:block: instead");
 
 @end
 
