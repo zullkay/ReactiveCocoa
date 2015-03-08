@@ -8,15 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import "RACDeprecated.h"
-#import "RACStream.h"
 
 @class RACDisposable;
 @class RACScheduler;
 @class RACSubject;
 @protocol RACSubscriber;
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 /// Represents a push-driven stream of events.
 /// 
@@ -43,9 +39,7 @@
 ///
 /// `RACSignal` is an opaque class, and is not meant to be subclassed outside of
 /// the framework itself.
-@interface RACSignal : RACStream
-
-#pragma clang diagnostic pop
+@interface RACSignal : NSObject
 
 /// Creates a new signal. This is the preferred way to create a new signal
 /// operation or behavior.

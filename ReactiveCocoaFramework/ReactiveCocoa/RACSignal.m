@@ -128,10 +128,6 @@
 @dynamic name;
 
 - (instancetype)setNameWithFormat:(NSString *)format, ... {
-	// This implementation is copied from RACStream because lolvarargs.
-	//
-	// Once RACStream is actually removed, this will be the sole implementation.
-
 #ifdef DEBUG
 	NSCParameterAssert(format != nil);
 

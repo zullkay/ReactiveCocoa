@@ -57,7 +57,6 @@
 
 #ifdef WE_PROMISE_TO_MIGRATE_TO_REACTIVECOCOA_3_0
 	#import "RACReplaySubject.h"
-	#import "RACStream.h"
 #endif
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED

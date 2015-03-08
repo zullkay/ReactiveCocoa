@@ -22,7 +22,6 @@
 #import "RACScheduler.h"
 #import "RACSerialDisposable.h"
 #import "RACSignal+Private.h"
-#import "RACStream+Private.h"
 #import "RACSubject.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
@@ -88,31 +87,57 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 }
 
 - (RACSignal *)flatten {
-	return [super flatten];
+	return [[self flattenMap:^(id value) {
+		return value;
+	}] setNameWithFormat:@"[%@] -flatten", self.name];
 }
 
 - (RACSignal *)map:(id (^)(id value))block {
-	return [super map:block];
+	NSCParameterAssert(block != nil);
+
+	return [[self flattenMap:^(id value) {
+		return [RACSignal return:block(value)];
+	}] setNameWithFormat:@"[%@] -map:", self.name];
 }
 
 - (RACSignal *)mapReplace:(id)object {
-	return [super mapReplace:object];
+	return [[self map:^(id _) {
+		return object;
+	}] setNameWithFormat:@"[%@] -mapReplace: %@", self.name, [object rac_description]];
 }
 
 - (RACSignal *)filter:(BOOL (^)(id value))block {
-	return [super filter:block];
+	NSCParameterAssert(block != nil);
+
+	return [[self flattenMap:^ id (id value) {
+		if (block(value)) {
+			return [RACSignal return:value];
+		} else {
+			return RACSignal.empty;
+		}
+	}] setNameWithFormat:@"[%@] -filter:", self.name];
 }
 
 - (RACSignal *)ignore:(id)value {
-	return [super ignore:value];
+	return [[self filter:^ BOOL (id innerValue) {
+		return innerValue != value && ![innerValue isEqual:value];
+	}] setNameWithFormat:@"[%@] -ignore: %@", self.name, [value rac_description]];
 }
 
 - (RACSignal *)reduceEach:(id (^)())reduceBlock {
-	return [super reduceEach:reduceBlock];
+	NSCParameterAssert(reduceBlock != nil);
+
+	__weak RACSignal *signal __attribute__((unused)) = self;
+	return [[self map:^(RACTuple *t) {
+		NSCAssert([t isKindOfClass:RACTuple.class], @"Value from stream %@ is not a tuple: %@", signal, t);
+		return [RACBlockTrampoline invokeBlock:reduceBlock withArguments:t];
+	}] setNameWithFormat:@"[%@] -reduceEach:", self.name];
 }
 
 - (RACSignal *)startWith:(id)value {
-	return [super startWith:value];
+	return [[[RACSignal return:value]
+		concat:self]
+		setNameWithFormat:@"[%@] -startWith: %@", self.name, [value rac_description]];
 }
 
 - (RACSignal *)skip:(NSUInteger)skipCount {
@@ -217,23 +242,33 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	}] setNameWithFormat:@"[%@] -zipWith: %@", self.name, signal];
 }
 
-// For some reason, only the overrides of class methods trigger this warning.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-+ (RACSignal *)zip:(id<NSFastEnumeration>)streams {
-	return [super zip:streams];
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals {
+	return [[self join:signals block:^(RACSignal *left, RACSignal *right) {
+		return [left zipWith:right];
+	}] setNameWithFormat:@"+zip: %@", signals];
 }
 
-+ (RACSignal *)zip:(id<NSFastEnumeration>)streams reduce:(id (^)())reduceBlock {
-	return [super zip:streams reduce:reduceBlock];
++ (RACSignal *)zip:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock {
+	NSCParameterAssert(reduceBlock != nil);
+
+	RACSignal *result = [self zip:signals];
+
+	// Although we assert this condition above, older versions of this method
+	// supported this argument being nil. Avoid crashing Release builds of
+	// apps that depended on that.
+	if (reduceBlock != nil) result = [result reduceEach:reduceBlock];
+
+	return [result setNameWithFormat:@"+zip: %@ reduce:", signals];
 }
 
-+ (RACSignal *)concat:(id<NSFastEnumeration>)streams {
-	return [super concat:streams];
-}
++ (RACSignal *)concat:(id<NSFastEnumeration>)signals {
+	RACSignal *result = self.empty;
+	for (RACSignal *signal in signals) {
+		result = [result concat:signal];
+	}
 
-#pragma clang diagnostic pop
+	return [result setNameWithFormat:@"+concat: %@", signals];
+}
 
 - (RACSignal *)scanWithStart:(id)startingValue reduce:(id (^)(id running, id next))block {
 	NSCParameterAssert(block != nil);
@@ -250,8 +285,34 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 		setNameWithFormat:@"[%@] -scanWithStart: %@ reduce:", self.name, [startingValue rac_description]];
 }
 
+- (RACSignal *)scanWithStart:(id)startingValue reduceWithIndex:(id (^)(id, id, NSUInteger))reduceBlock {
+	NSCParameterAssert(reduceBlock != nil);
+
+	return [[RACSignal
+		defer:^{
+			__block id running = startingValue;
+			__block NSUInteger index = 0;
+
+			return [self map:^(id value) {
+				running = reduceBlock(running, value, index++);
+				return running;
+			}];
+		}]
+		setNameWithFormat:@"[%@] -scanWithStart: %@ reduceWithIndex:", self.name, [startingValue rac_description]];
+}
+
 - (RACSignal *)combinePreviousWithStart:(id)start reduce:(id (^)(id previous, id current))reduceBlock {
-	return [super combinePreviousWithStart:start reduce:reduceBlock];
+	NSCParameterAssert(reduceBlock != NULL);
+	return [[[self
+		scanWithStart:[RACTuple tupleWithObjects:start, nil]
+		reduce:^(RACTuple *previousTuple, id next) {
+			id value = reduceBlock(previousTuple[0], next);
+			return [RACTuple tupleWithObjects:next ?: RACTupleNil.tupleNil, value ?: RACTupleNil.tupleNil, nil];
+		}]
+		map:^(RACTuple *tuple) {
+			return tuple[1];
+		}]
+		setNameWithFormat:@"[%@] -combinePreviousWithStart: %@ reduce:", self.name, [start rac_description]];
 }
 
 - (RACSignal *)distinctUntilChanged {
@@ -626,6 +687,44 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	return [[self join:signals block:^(RACSignal *left, RACSignal *right) {
 		return [left combineLatestWith:right];
 	}] setNameWithFormat:@"+combineLatest: %@", signals];
+}
+
++ (RACSignal *)join:(id<NSFastEnumeration>)signals block:(RACSignal * (^)(id, id))block {
+	RACSignal *current = nil;
+
+	// Creates streams of successively larger tuples by combining the input
+	// streams one-by-one.
+	for (RACSignal *signal in signals) {
+		// For the first stream, just wrap its values in a RACTuple. That way,
+		// if only one stream is given, the result is still a stream of tuples.
+		if (current == nil) {
+			current = [signal map:^(id x) {
+				return RACTuplePack(x);
+			}];
+
+			continue;
+		}
+
+		current = block(current, signal);
+	}
+
+	if (current == nil) return [self empty];
+
+	return [current map:^(RACTuple *xs) {
+		// Right now, each value is contained in its own tuple, sorta like:
+		//
+		// (((1), 2), 3)
+		//
+		// We need to unwrap all the layers and create a tuple out of the result.
+		NSMutableArray *values = [[NSMutableArray alloc] init];
+
+		while (xs != nil) {
+			[values insertObject:xs[xs.count - 1] ?: RACTupleNil.tupleNil atIndex:0];
+			xs = (xs.count > 1 ? xs[0] : nil);
+		}
+
+		return [RACTuple tupleWithArray:values];
+	}];
 }
 
 + (RACSignal *)combineLatest:(id<NSFastEnumeration>)signals reduce:(id (^)())reduceBlock {
@@ -1383,22 +1482,6 @@ const NSInteger RACSignalErrorNoMatchingCase = 2;
 	} else {
 		return [self flatten:maxConcurrent withPolicy:RACSignalFlattenPolicyQueue];
 	}
-}
-
-- (RACSignal *)takeUntilBlock:(BOOL (^)(id x))predicate {
-	return [super takeUntilBlock:predicate];
-}
-
-- (RACSignal *)takeWhileBlock:(BOOL (^)(id x))predicate {
-	return [super takeWhileBlock:predicate];
-}
-
-- (RACSignal *)skipUntilBlock:(BOOL (^)(id x))predicate {
-	return [super skipUntilBlock:predicate];
-}
-
-- (RACSignal *)skipWhileBlock:(BOOL (^)(id x))predicate {
-	return [super skipWhileBlock:predicate];
 }
 
 - (RACSignal *)any {	

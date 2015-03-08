@@ -14,6 +14,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
+#import "RACSignal+Operations.h"
 #import "RACTuple.h"
 
 SpecBegin(NSObjectRACLifting)

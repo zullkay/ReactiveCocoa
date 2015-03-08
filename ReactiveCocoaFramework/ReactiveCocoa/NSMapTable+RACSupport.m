@@ -10,6 +10,7 @@
 #import "NSObject+RACDescription.h"
 #import "RACCompoundDisposable.h"
 #import "RACSignal.h"
+#import "RACSignal+Operations.h"
 #import "RACSubscriber.h"
 #import "RACTuple.h"
 

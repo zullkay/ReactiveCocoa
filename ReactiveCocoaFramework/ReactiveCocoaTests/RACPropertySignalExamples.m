@@ -15,6 +15,7 @@
 #import "RACCompoundDisposable.h"
 #import "RACDisposable.h"
 #import "RACSubject.h"
+#import "RACSignal+Operations.h"
 
 NSString * const RACPropertySignalExamples = @"RACPropertySignalExamples";
 NSString * const RACPropertySignalExamplesSetupBlock = @"RACPropertySignalExamplesSetupBlock";
