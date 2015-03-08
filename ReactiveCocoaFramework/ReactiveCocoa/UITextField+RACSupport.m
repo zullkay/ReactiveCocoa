@@ -13,7 +13,6 @@
 #import "NSObject+RACDescription.h"
 #import "RACSignal+Operations.h"
 #import "UIControl+RACSupport.h"
-#import "UIControl+RACSupportPrivate.h"
 
 @implementation UITextField (RACSupport)
 
@@ -30,10 +29,6 @@
 		}]
 		takeUntil:self.rac_willDeallocSignal]
 		setNameWithFormat:@"%@ -rac_textSignal", [self rac_description]];
-}
-
-- (RACChannelTerminal *)rac_newTextChannel {
-	return [self rac_channelForControlEvents:UIControlEventEditingChanged | UIControlEventEditingDidBegin key:@keypath(self.text) nilValue:@""];
 }
 
 @end
