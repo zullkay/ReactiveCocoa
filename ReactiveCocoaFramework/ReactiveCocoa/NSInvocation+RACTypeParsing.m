@@ -8,7 +8,6 @@
 
 #import "NSInvocation+RACTypeParsing.h"
 #import "RACTuple.h"
-#import "RACUnit.h"
 #import <CoreGraphics/CoreGraphics.h>
 
 @implementation NSInvocation (RACTypeParsing)
@@ -213,11 +212,7 @@
 	} else if (strcmp(returnType, @encode(char *)) == 0) {
 		WRAP_AND_RETURN(const char *);
 	} else if (strcmp(returnType, @encode(void)) == 0) {
-		#pragma clang diagnostic push
-		#pragma clang diagnostic ignored "-Wdeprecated"
-		// Can't break our RAC 2.x interface contract here.
-		return RACUnit.defaultUnit;
-		#pragma clang diagnostic pop
+		return nil;
 	} else {
 		NSUInteger valueSize = 0;
 		NSGetSizeAndAlignment(returnType, &valueSize, NULL);

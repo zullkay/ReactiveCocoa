@@ -59,7 +59,6 @@
 	#import "RACBehaviorSubject.h"
 	#import "RACReplaySubject.h"
 	#import "RACStream.h"
-	#import "RACUnit.h"
 #endif
 
 #ifdef __IPHONE_OS_VERSION_MIN_REQUIRED
