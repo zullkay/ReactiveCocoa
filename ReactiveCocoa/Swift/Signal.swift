@@ -1137,6 +1137,7 @@ private func concat<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, 
 		signal.observe(next: { producer in
 			state.enqueueSignalProducer(producer)
 		}, error: { error in
+			disposable.dispose()
 			sendError(observer, error)
 		}, completed: {
 			// Add one last producer to the queue, whose sole job is to
@@ -1147,6 +1148,7 @@ private func concat<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, 
 
 			state.enqueueSignalProducer(completion)
 		}, interrupted: {
+			disposable.dispose()
 			sendInterrupted(observer)
 		})
 
@@ -1170,6 +1172,10 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 
 	func enqueueSignalProducer(producer: SignalProducer<T, E>) {
+		if self.disposable.disposed {
+			return
+		}
+
 		var shouldStart = true
 
 		queuedSignalProducers.modify { (var queue) in
@@ -1186,6 +1192,10 @@ private final class ConcatState<T, E: ErrorType> {
 	}
 
 	func dequeueSignalProducer() -> SignalProducer<T, E>? {
+		if self.disposable.disposed {
+			return nil
+		}
+
 		var nextSignalProducer: SignalProducer<T, E>?
 
 		queuedSignalProducers.modify { (var queue) in
@@ -1202,8 +1212,12 @@ private final class ConcatState<T, E: ErrorType> {
 
 	/// Subscribes to the given signal producer.
 	func startNextSignalProducer(signalProducer: SignalProducer<T, E>) {
+		if self.disposable.disposed {
+			return
+		}
+
 		signalProducer.startWithSignal { signal, disposable in
-			self.disposable.addDisposable(disposable)
+			let handle = self.disposable.addDisposable(disposable)
 
 			signal.observe(Signal.Observer { event in
 				switch event {
@@ -1233,7 +1247,7 @@ private func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E
 		}
 
 		let disposable = CompositeDisposable()
-		signal.observe(next: { producer in
+		let outerDisposable = signal.observe(next: { producer in
 			producer.startWithSignal { innerSignal, innerDisposable in
 				inFlight.modify { $0 + 1 }
 
@@ -1254,13 +1268,16 @@ private func merge<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Signal<T, E
 				})
 			}
 		}, error: { error in
+			disposable.dispose()
 			sendError(relayObserver, error)
 		}, completed: {
 			decrementInFlight()
 		}, interrupted: {
+			disposable.dispose()
 			sendInterrupted(relayObserver)
 		})
 
+		disposable.addDisposable(outerDisposable)
 		return disposable
 	}
 }
@@ -1323,6 +1340,7 @@ private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Si
 				})
 			}
 		}, error: { error in
+			disposable.dispose()
 			sendError(sink, error)
 		}, completed: {
 			updateState { state in
@@ -1331,6 +1349,7 @@ private func switchToLatest<T, E>(signal: Signal<SignalProducer<T, E>, E>) -> Si
 					latestIncompleteSignal: state.latestIncompleteSignal)
 			}
 		}, interrupted: {
+			disposable.dispose()
 			sendInterrupted(sink)
 		})
 
